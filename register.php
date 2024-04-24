@@ -6,7 +6,7 @@ include 'config.php';
 
 if (isset($_POST['email']) && isset($_POST['password'])) {
     $email = $_POST['email'];
-    $password = $_POST['password'];
+    $mot_de_passe = $_POST['password'];
 
     $conn = new mysqli(config::SERVEUR, config::UTILISATEUR, config::MOTDEPASSE, config::BASEDEDONNEES);
 
@@ -14,19 +14,19 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // déchiffrement du mot de passe
-    $password = md5($password);
+    // chiffrement du mot de passe sans password_hash
+    $mot_de_passe = md5($mot_de_passe);
 
+    // enregister l'utilisateur
     $sql = "USE sncf_connect_db";
-    $sql = "SELECT * FROM utilisateurs WHERE email='$email' AND mot_de_passe='$password'";
+    $sql = "INSERT INTO utilisateurs (email, mot_de_passe) VALUES ('$email', '$mot_de_passe')";
     $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        header("Location: securite.html");
+    if ($result === TRUE) {
+        header("Location: index.html");
     } else {
-        echo "Invalid username or password.";
+        echo "Error: " . $sql . "<br>" . $conn->error;
     }
-
     $conn->close();
 }
 
